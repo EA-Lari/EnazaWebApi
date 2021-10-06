@@ -1,8 +1,5 @@
 ﻿using EnazaWebApi.Data.Enums;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EnazaWebApi.Logic.Dto
 {
@@ -16,8 +13,6 @@ namespace EnazaWebApi.Logic.Dto
 
         public DateTime CreateDate { get; set; }
 
-        public UserGroupEnum Group { get; set; }
-
-        public UserStateCodeEnum State { get; set; }
+        public UserGroupCodeEnum Group { get; set; }
     }
 }
