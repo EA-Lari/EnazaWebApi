@@ -23,6 +23,7 @@ namespace EnazaWebApi.Application
             var user = _mapper.Map<User>(userDto);
             user.UserStateId = await GetStateByCode(UserStateCodeEnum.Active);
             user.UserGroupId = await GetGroupByCode(userDto.Group);
+            user.CreateDate = DateTime.Now;
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
         }
