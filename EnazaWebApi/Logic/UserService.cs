@@ -24,9 +24,14 @@ namespace EnazaWebApi.Logic
             await _context.SaveChangesAsync();
         }
 
-        public Task Delete(int userId)
+        public async Task SetStateBlocked(int userId)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.UserId == userId);
+            user.UserStateId = await _context.States
+                .Where(x => x.Code == Data.Enums.UserStateCodeEnum.Blocked)
+                .Select(x => x.UserStateId)
+                .FirstOrDefaultAsync();
+            await _context.SaveChangesAsync();
         }
 
         public async Task Edit(UserEditDto userDto)
@@ -48,14 +53,31 @@ namespace EnazaWebApi.Logic
             _validate.CheckState(_context.Users, userDto);
         }
 
-        public UserShowDto GetUser()
+        public async Task<UserShowDto> GetUser(int userId)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users
+                .Include(x => x.Group)
+                .Include(x => x.State)
+                .FirstOrDefaultAsync(x => x.UserId == userId);
+            var userDto = _mapper.Map<UserShowDto>(user);
+            return userDto;
         }
 
-        public Task<UserShowDto> GetUsers()
+        public async Task<List<UserShowDto>> GetUsers()
         {
-            throw new NotImplementedException();
+            var users = await _context.Users
+               .Include(x => x.Group)
+               .Include(x => x.State)
+               .ToListAsync();
+            var userList = users
+                .Select(x => _mapper.Map<UserShowDto>(x))
+                .ToList();
+            return userList;
+        }
+
+        private int GetStateActive()
+        {
+
         }
     }
 }

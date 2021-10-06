@@ -1,12 +1,15 @@
 ﻿using EnazaWebApi.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace EnazaWebApi.Data
 {
     public class UserContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+
+        public DbSet<UserGroup> Groups { get; set; }
+
+        public DbSet<UserState> States { get; set; }
 
     }
 }

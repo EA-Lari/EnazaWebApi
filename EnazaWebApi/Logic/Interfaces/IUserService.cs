@@ -1,7 +1,5 @@
 ﻿using EnazaWebApi.Logic.Dto;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace EnazaWebApi.Logic
@@ -10,12 +8,12 @@ namespace EnazaWebApi.Logic
     {
         Task Add(UserEditDto user);
 
-        Task Delete(int userId);
+        Task SetStateBlocked(int userId);
 
         Task Edit(UserEditDto user);
 
-        Task<UserShowDto> GetUsers();
+        Task<List<UserShowDto>> GetUsers();
 
-        UserShowDto GetUser();
+        Task<UserShowDto> GetUser(int userId);
     }
 }
