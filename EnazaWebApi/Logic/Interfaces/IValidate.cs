@@ -10,5 +10,7 @@ namespace EnazaWebApi.Logic
         Task CheckLogin(IQueryable<User> query, string login);
 
         Task CheckState(IQueryable<User> query, UserEditDto user);
+
+        Task CheckForCompletenessTest(UserEditDto user);
     }
 }
