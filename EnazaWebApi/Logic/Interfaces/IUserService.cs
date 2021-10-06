@@ -8,7 +8,7 @@ namespace EnazaWebApi.Logic
     {
         Task Add(UserEditDto user);
 
-        Task SetStateBlocked(int userId);
+        Task Delete(int userId);
 
         Task Edit(UserEditDto user);
 

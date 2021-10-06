@@ -5,7 +5,7 @@ namespace EnazaWebApi.Logic.Dto
 {
     public class UserEditDto
     {
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
 
         public string Login { get; set; }
 
