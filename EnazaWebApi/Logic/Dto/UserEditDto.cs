@@ -11,8 +11,6 @@ namespace EnazaWebApi.Logic.Dto
 
         public string Password { get; set; }
 
-        public DateTime CreateDate { get; set; }
-
         public UserGroupCodeEnum Group { get; set; }
     }
 }
