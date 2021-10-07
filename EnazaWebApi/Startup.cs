@@ -25,7 +25,8 @@ namespace EnazaWebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddDbContext<UserContext>();
+            services.AddDbContext<UserContext>(options =>
+    options.UseSqlServer(Configuration.GetConnectionString("UserContext")));
             services.AddAutoMapper(c => c.AddProfile<UserProfile>());
             services.AddSwaggerGen(c =>
             {
