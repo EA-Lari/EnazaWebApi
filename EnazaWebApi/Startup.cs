@@ -1,5 +1,7 @@
 using EnazaWebApi.Application;
 using EnazaWebApi.Data;
+using EnazaWebApi.Logic;
+using EnazaWebApi.Logic.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -37,8 +39,10 @@ namespace EnazaWebApi
                         Name = "Ekaterina Makarova",
                         Email = string.Empty,
                     }
+                });
             });
-        });
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IRepositoryUsers, RepositoryUsers>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
