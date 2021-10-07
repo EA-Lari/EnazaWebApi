@@ -76,15 +76,39 @@ namespace EnazaWebApi.Application
         }
 
         private async Task<int> GetStateByCode(UserStateCodeEnum code)
-            => await _context.States
-                .Where(x => x.Code == code)
-                .Select(x => x.UserStateId)
-                .FirstOrDefaultAsync();
+        {
+            var state = await _context.States
+                  .Where(x => x.Code == code)
+                  .FirstOrDefaultAsync();
+            if(state == null)
+            {
+                state = new UserState
+                {
+                    Code = code,
+                    Description = Enum.GetName(typeof(UserStateCodeEnum),code)
+                };
+                _context.Add(state);
+                await _context.SaveChangesAsync();
+            }
+            return state.UserStateId;
+        }
 
         private async Task<int> GetGroupByCode(UserGroupCodeEnum code)
-            => await _context.Groups
+        {
+            var group = await _context.Groups
                 .Where(x => x.Code == code)
-                .Select(x => x.UserGroupId)
-                .FirstOrDefaultAsync();
+                 .FirstOrDefaultAsync();
+            if (group == null)
+            {
+                group = new UserGroup
+                {
+                    Code = code,
+                    Description = Enum.GetName(typeof(UserGroupCodeEnum), code)
+                };
+                _context.Add(group);
+                await _context.SaveChangesAsync();
+            }
+            return group.UserGroupId;
+        }
     }
 }
