@@ -21,15 +21,13 @@ namespace EnazaWebApi.Application.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserShowDto>>> Get()
         {
-            return await _service.GetUsers();
-            return Ok();
+            return Ok(await _service.GetUsers());
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<UserShowDto>> Get(int id)
         {
-            return await _service.GetUser(id);
-            return Ok();
+            return Ok(await _service.GetUser(id));
         }
 
         [HttpPost]
