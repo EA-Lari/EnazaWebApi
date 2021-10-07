@@ -1,3 +1,4 @@
+using EnazaWebApi.Application;
 using EnazaWebApi.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -25,6 +26,7 @@ namespace EnazaWebApi
             services.AddControllers();
             services.AddDbContext<UserContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("Connection")));
+            services.AddAutoMapper(c => c.AddProfile<UserProfile>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

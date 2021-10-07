@@ -18,6 +18,12 @@ namespace EnazaWebApi.Application
         private readonly IMapper _mapper;
         private readonly UserContext _context;
 
+        public RepositoryUsers(IMapper mapper, UserContext context)
+        {
+            _mapper = mapper;
+            _context = context;
+        }
+
         public async Task Add(UserEditDto userDto)
         {
             var user = _mapper.Map<User>(userDto);
