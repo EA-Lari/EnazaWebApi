@@ -24,12 +24,12 @@ namespace WebApiTest
             tasks.Add(CheckAddWithoutAdmin());
             var repo = FactoryRepo(ListWithoutAdmin());
             var service = FactoryService(repo);
-            var userWithoutLogin = FactoryUserDto(10);
+            var userWithoutLogin = FactoryUserDto(22);
             userWithoutLogin.Login = "";
             await Assert.ThrowsAsync<ArgumentException>(() => service.Add(userWithoutLogin));
-            var userWithoutPassword = FactoryUserDto(20);
+            var userWithoutPassword = FactoryUserDto(33);
             userWithoutPassword.Password = "";
-            await Assert.ThrowsAsync<ArgumentException>(() =>service.Add(userWithoutPassword));
+            await Assert.ThrowsAsync<ArgumentException>(() => service.Add(userWithoutPassword));
             Task.WaitAll(tasks.ToArray());
         }
 
@@ -38,7 +38,7 @@ namespace WebApiTest
             var repo = FactoryRepo(ListWithAdmin());
             var service = FactoryService(repo);
             await Assert.ThrowsAsync<ArgumentException>(() =>
-                service.Add(FactoryAdminDto("Admin2")));
+                service.Add(FactoryAdminDto(2)));
             await Assert.ThrowsAsync<ArgumentException>(() =>
                 service.Add(FactoryUserDto(0)));
         }
@@ -47,7 +47,7 @@ namespace WebApiTest
         {
             var repo = FactoryRepo(ListAllBlocked());
             var service = FactoryService(repo);
-            await service.Add(FactoryAdminDto("Admin2"));
+            await service.Add(FactoryAdminDto(2));
             await service.Add(FactoryUserDto(10));
         }
 
@@ -55,41 +55,68 @@ namespace WebApiTest
         {
             var repo = FactoryRepo(ListWithoutAdmin());
             var service = FactoryService(repo);
-            await service.Add(FactoryAdminDto("Admin2"));
+            await service.Add(FactoryAdminDto(2));
             await service.Add(FactoryUserDto(10));
             await Assert.ThrowsAsync<ArgumentException>(() =>
                 service.Add(FactoryUserDto(0)));
         }
 
-        //[Fact]
-        //public async Task Edit()
-        //{
-        //    var list = new List<UserEditDto>();
-        //    var repo = FactoryRepo(ListWithAdmin());
-        //    var service = FactoryService(repo);
-        //    await CheckAddEdit(service.Edit);
-        //    var userForEdit = (await service.GetUsers()).FirstOrDefault();
-        //    //Без логина
-        //    var userWithoutLogin = FactoryUserDto(1);
-        //    userWithoutLogin.UserId = userForEdit.UserId;
-        //    userWithoutLogin.Login = "";
-        //    await service.Edit(userWithoutLogin);
-        //    userForEdit = await service.GetUser(userForEdit.UserId);
-        //    Assert.True(userWithoutLogin.Password == userForEdit.Password
-        //        && userWithoutLogin.Group == userForEdit.Group.Code);
-        //    //Без пароля
-        //    var userWithoutPassword = FactoryUserDto(2);
-        //    userWithoutPassword.UserId = userForEdit.UserId;
-        //    userWithoutPassword.Password = "";
-        //    await service.Edit(userWithoutPassword);
-        //    userForEdit = await service.GetUser(userForEdit.UserId);
-        //    Assert.True(userWithoutLogin.Login == userForEdit.Login
-        //        && userWithoutLogin.Group == userForEdit.Group.Code);
-        //    //Без идентификатора
-        //    var userWithoutID = FactoryUserDto(2);
-        //    userWithoutID.UserId = null;
-        //    await Assert.ThrowsAsync<ArgumentNullException>(async () => await service.Edit(userWithoutID));
-        //}
+
+        [Fact]
+        public async Task Edit()
+        {
+            var tasks = new List<Task>();
+            tasks.Add(CheckEditWithAdmin());
+            tasks.Add(CheckEditAllBlocked());
+            tasks.Add(CheckEditWithoutAdmin());
+            var repo = FactoryRepo(ListWithoutAdmin());
+            var service = FactoryService(repo);
+            //Без логина
+            var userWithoutLogin = FactoryUserDto(1,false);
+            userWithoutLogin.Login = "";
+            await service.Edit(userWithoutLogin);
+            //////Без пароля
+            var userWithoutPassword = FactoryUserDto(2,false);
+            userWithoutPassword.Password = "";
+            await service.Edit(userWithoutPassword);
+            //////Без идентификатора
+            var userWithoutID = FactoryUserDto(2);
+            await Assert.ThrowsAsync<ArgumentNullException>(() => service.Edit(userWithoutID));
+            Task.WaitAll(tasks.ToArray());
+        }
+
+        private async Task CheckEditWithAdmin()
+        {
+            var repo = FactoryRepo(ListWithAdmin());
+            var service = FactoryService(repo);
+            var user = FactoryUserDto(1, false);
+            user.Group = UserGroupCodeEnum.Admin;
+            await Assert.ThrowsAsync<ArgumentException>(() =>
+                service.Edit(user));
+            await Assert.ThrowsAsync<ArgumentNullException>(() =>
+                service.Edit(FactoryUserDto(11, false)));
+        }
+
+        private async Task CheckEditAllBlocked()
+        {
+            var repo = FactoryRepo(ListAllBlocked());
+            var service = FactoryService(repo);
+            var user = FactoryUserDto(1, false);
+            user.Group = UserGroupCodeEnum.Admin;
+            await service.Edit(user);
+            await service.Edit(FactoryUserDto(2, false));
+        }
+
+        private async Task CheckEditWithoutAdmin()
+        {
+            var repo = FactoryRepo(ListWithoutAdmin());
+            var service = FactoryService(repo);
+            var user = FactoryUserDto(1, false);
+            user.Group = UserGroupCodeEnum.Admin;
+            await service.Edit(user);
+            await service.Edit(FactoryUserDto(1, false));
+        }
+
 
         private IUserService FactoryService(IRepositoryUsers repo)
             => new UserService(repo);
@@ -105,8 +132,8 @@ namespace WebApiTest
         private List<User> ListWithAdmin()
             => new List<User>
             {
-                FactoryAdmin(0),
-                FactoryAdmin(1, UserStateCodeEnum.Blocked),
+                FactoryAdmin(4),
+                FactoryAdmin(5, UserStateCodeEnum.Blocked),
                 FactoryUser(0),
                 FactoryUser(1),
                 FactoryUser(2)
@@ -115,7 +142,7 @@ namespace WebApiTest
         private List<User> ListAllBlocked()
            => new List<User>
            {
-                FactoryAdmin(0, UserStateCodeEnum.Blocked),
+                FactoryAdmin(4, UserStateCodeEnum.Blocked),
                 FactoryUser(0, UserStateCodeEnum.Blocked),
                 FactoryUser(1, UserStateCodeEnum.Blocked),
                 FactoryUser(2, UserStateCodeEnum.Blocked)
@@ -129,31 +156,34 @@ namespace WebApiTest
                 FactoryUser(2)
            };
 
-        private UserEditDto FactoryAdminDto(string login = "Admin")
+        private UserEditDto FactoryAdminDto(int i = 0, bool isNew =true)
             => new UserEditDto 
             {
-                Login = login,
+                UserId = isNew? null: (int?)i*10,
+                Login = $"Admin{i}",
                 Password = "123123123",
                 Group = UserGroupCodeEnum.Admin
             };
 
-        private UserEditDto FactoryUserDto(int i = 0)
+        private UserEditDto FactoryUserDto(int i = 0,bool isNew=true)
             => new UserEditDto
             {
+                UserId = isNew ? null : (int?)i,
                 Login = $"User{i}",
                 Password = "123123123",
                 Group = UserGroupCodeEnum.User
             };
 
         private User FactoryUser(int i = 0, UserStateCodeEnum state = UserStateCodeEnum.Active)
-           => FactoryUser($"User{i}", UserGroupCodeEnum.User, state);
+           => FactoryUser(i,$"User{i}", UserGroupCodeEnum.User, state);
 
         private User FactoryAdmin(int i = 0, UserStateCodeEnum state = UserStateCodeEnum.Active)
-           => FactoryUser($"Admin{i}", UserGroupCodeEnum.Admin, state);
+           => FactoryUser(i*10,$"Admin{i}", UserGroupCodeEnum.Admin, state);
 
-        private User FactoryUser(string login, UserGroupCodeEnum group, UserStateCodeEnum state)
+        private User FactoryUser(int i,string login, UserGroupCodeEnum group, UserStateCodeEnum state)
             => new User
             {
+                UserId = i,
                 Login = login,
                 Group = new UserGroup
                 {

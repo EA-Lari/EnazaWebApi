@@ -28,6 +28,8 @@ namespace EnazaWebApi.Logic
 
         public async Task Edit(UserEditDto userDto)
         {
+            if(!userDto.UserId.HasValue)
+                throw new ArgumentNullException("Отсутствует идентификатор");
             if (!_repository.Any(x => x.UserId == userDto.UserId))
                 throw new ArgumentNullException("Невозможно отредактировать пользователя. Пользователь не найден.");
             Check(userDto);
