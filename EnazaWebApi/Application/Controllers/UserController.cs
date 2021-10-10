@@ -14,6 +14,7 @@ namespace EnazaWebApi.Application.Controllers
     {
         private readonly IUserService _service;
 
+        private readonly int _waitCreateSeconds = 5;
         public UserController(IUserService service)
         {
             _service = service;
@@ -50,8 +51,10 @@ namespace EnazaWebApi.Application.Controllers
         [HttpPost]
         public async Task<ActionResult> Add([FromBody] UserEditDto user)
         {
-            await _service.Add(user);
-            return Ok();
+            var taskAdd = _service.Add(user);
+            if(taskAdd.Wait(_waitCreateSeconds * 1000))
+                return Ok();
+            return Problem("Long waiting time create User");
         }
 
         /// <summary>
