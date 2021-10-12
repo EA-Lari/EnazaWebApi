@@ -2,6 +2,7 @@ using EnazaWebApi.Application;
 using EnazaWebApi.Data;
 using EnazaWebApi.Logic;
 using EnazaWebApi.Logic.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +27,7 @@ namespace EnazaWebApi
         {
             services.AddControllers();
             services.AddDbContext<UserContext>(options =>
-    options.UseSqlServer(Configuration.GetConnectionString("UserContext")));
+                options.UseSqlite(Configuration.GetConnectionString("UserContext")));
             services.AddAutoMapper(c => c.AddProfile<UserProfile>());
             services.AddSwaggerGen(c =>
             {
@@ -44,6 +45,7 @@ namespace EnazaWebApi
             });
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRepositoryUsers, RepositoryUsers>();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
