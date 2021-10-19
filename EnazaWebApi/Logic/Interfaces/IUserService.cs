@@ -15,5 +15,7 @@ namespace EnazaWebApi.Logic
         Task<List<UserShowDto>> GetUsers();
 
         Task<UserShowDto> GetUser(int userId);
+
+        Task<string> GetToken(string login, string password);
     }
 }

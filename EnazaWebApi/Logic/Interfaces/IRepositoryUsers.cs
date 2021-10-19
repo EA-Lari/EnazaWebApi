@@ -20,5 +20,7 @@ namespace EnazaWebApi.Logic.Interfaces
         Task<UserShowDto> GetUser(int userId);
 
         bool Any(Expression<Func<User, bool>> predicate);
+
+        Task<UserShowDto> CheckLogin(string login, string password);
     }
 }

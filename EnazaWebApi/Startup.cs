@@ -1,4 +1,5 @@
-using EnazaWebApi.Application;
+﻿using EnazaWebApi.Application;
+using EnazaWebApi.Auth;
 using EnazaWebApi.Data;
 using EnazaWebApi.Logic;
 using EnazaWebApi.Logic.Interfaces;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace EnazaWebApi
@@ -45,7 +47,21 @@ namespace EnazaWebApi
             });
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRepositoryUsers, RepositoryUsers>();
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                { 
+                    options.RequireHttpsMetadata = false;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        // будет ли валидироваться время существования
+                        ValidateLifetime = true,
+
+                        // установка ключа безопасности
+                        IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                        // валидация ключа безопасности
+                        ValidateIssuerSigningKey = true
+                    };
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

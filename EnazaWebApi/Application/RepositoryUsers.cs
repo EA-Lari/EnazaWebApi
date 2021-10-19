@@ -110,5 +110,15 @@ namespace EnazaWebApi.Application
             }
             return group.UserGroupId;
         }
+
+        public async Task<UserShowDto> CheckLogin(string login, string password)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Login == login);
+            if(user == null)
+                throw new Exception("Пользователь не найден");
+            if (user.Password == password)
+                return _mapper.Map<UserShowDto>(user);
+            throw new Exception("Не корректный пароль");
+        }
     }
 }

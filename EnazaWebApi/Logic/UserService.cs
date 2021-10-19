@@ -72,5 +72,12 @@ namespace EnazaWebApi.Logic
 
         public async Task<List<UserShowDto>> GetUsers()
             =>await _repository.GetUsers();
+
+        public Task<string> GetToken(string login, string password)
+        {
+            var user = _repository.CheckLogin(login, password);
+            
+            throw new NotImplementedException();
+        }
     }
 }
