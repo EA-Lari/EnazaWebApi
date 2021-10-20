@@ -22,10 +22,12 @@ namespace EnazaWebApi.Application.Controllers
         }
 
         [AllowAnonymous]
+        [HttpGet]
         [Route("login")]
         public async Task<IActionResult> Login(string login, string password)
         {
-
+            var token = await _service.GetToken(login, password);
+            return Ok(token);
         }
 
         /// <summary>

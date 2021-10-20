@@ -1,7 +1,11 @@
-﻿using EnazaWebApi.Logic.Dto;
+﻿using EnazaWebApi.Auth;
+using EnazaWebApi.Logic.Dto;
 using EnazaWebApi.Logic.Interfaces;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace EnazaWebApi.Logic
@@ -73,11 +77,46 @@ namespace EnazaWebApi.Logic
         public async Task<List<UserShowDto>> GetUsers()
             =>await _repository.GetUsers();
 
-        public Task<string> GetToken(string login, string password)
+        public async Task<string> GetToken(string login, string password)
         {
-            var user = _repository.CheckLogin(login, password);
-            
-            throw new NotImplementedException();
+            var identity = await GetIdentity(login, password);
+            if (identity == null)
+            {
+                throw new Exception( "Invalid username or password." );
+            }
+
+            var now = DateTime.UtcNow;
+            // создаем JWT-токен
+            var jwt = new JwtSecurityToken(
+                    issuer: AuthOptions.ISSUER,
+                    audience: AuthOptions.AUDIENCE,
+                    notBefore: now,
+                    claims: identity.Claims,
+                    expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
+                    signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+            return encodedJwt;
+        }
+
+        private async Task<ClaimsIdentity> GetIdentity(string login, string password)
+        {
+            var person = await _repository.CheckLogin(login, password);
+            if (person != null)
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, person.Login),
+                    new Claim(ClaimsIdentity.DefaultRoleClaimType, person.Group.Code.ToString())
+                };
+                ClaimsIdentity claimsIdentity =
+                new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
+                    ClaimsIdentity.DefaultRoleClaimType);
+                return claimsIdentity;
+            }
+
+            // если пользователя не найдено
+            return null;
         }
     }
 }
